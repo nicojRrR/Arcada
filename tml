@@ -1,0 +1,109 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Subway Surfer Clone</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="game-container">
+        <div id="character"></div>
+        <div id="obstacle"></div>
+        <div id="powerup"></div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>#game-container {
+    width: 800px;
+    height: 400px;
+    border: 1px solid black;
+    overflow: hidden;
+}
+
+#character {
+    width: 50px;
+    height: 50px;
+    background-color: blue;
+    position: absolute;
+    bottom: 0;
+}
+
+#obstacle {
+    width: 50px;
+    height: 50px;
+    background-color: red;
+    position: absolute;
+    bottom: 0;
+}
+
+#powerup {
+    width: 30px;
+    height: 30px;
+    background-color: green;
+    position: absolute;
+    bottom: 0;
+}const gameContainer = document.getElementById('game-container');
+const character = document.getElementById('character');
+const obstacle = document.getElementById('obstacle');
+const powerup = document.getElementById('powerup');
+
+let characterX = 0;
+let obstacleX = gameContainer.offsetWidth;
+let powerupX = gameContainer.offsetWidth * 2;
+
+let isJumping = false;
+let isGameOver = false;
+
+function jump() {
+    if (!isJumping) {
+        isJumping = true;
+        let jumpHeight = 100;
+        let jumpInterval = setInterval(() => {
+            character.style.bottom = `${character.offsetTop - jumpHeight}px`;
+            jumpHeight -= 5;
+            if (jumpHeight <= 0) {
+                clearInterval(jumpInterval);
+                isJumping = false;
+                character.style.bottom = '0px';
+            }
+        }, 20);
+    }
+}
+
+function moveObstacles() {
+    obstacleX -= 5;
+    powerupX -= 5;
+    if (obstacleX <= 0) {
+        obstacleX = gameContainer.offsetWidth;
+    }
+    if (powerupX <= 0) {
+        powerupX = gameContainer.offsetWidth * 2;
+    }
+    obstacle.style.left = `${obstacleX}px`;
+    powerup.style.left = `${powerupX}px`;
+}
+
+function checkCollisions() {
+    if (character.offsetLeft + character.offsetWidth >= obstacle.offsetLeft &&
+        character.offsetLeft <= obstacle.offsetLeft + obstacle.offsetWidth &&
+        character.offsetTop + character.offsetHeight >= obstacle.offsetTop &&
+        character.offsetTop <= obstacle.offsetTop + obstacle.offsetHeight) {
+        isGameOver = true;
+    }
+}
+
+function gameLoop() {
+    if (!isGameOver) {
+        moveObstacles();
+        checkCollisions();
+        requestAnimationFrame(gameLoop);
+    }
+}
+
+document.addEventListener('keydown', (event) => {
+    if (event.key === 'ArrowUp') {
+        jump();
+    }
+});
+
+gameLoop();
